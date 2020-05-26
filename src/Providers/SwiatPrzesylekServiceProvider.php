@@ -3,11 +3,15 @@
 namespace SwiatPrzesylek\Providers;
 
 
+use Plenty\Modules\EventProcedures\Events\EventProceduresTriggered;
+use Plenty\Modules\EventProcedures\Services\Entries\ProcedureEntry;
+use Plenty\Modules\EventProcedures\Services\EventProceduresService;
 use Plenty\Modules\Order\Shipping\Returns\Services\ReturnsServiceProviderService;
 use Plenty\Modules\Order\Shipping\ServiceProvider\Services\ShippingServiceProviderService;
 use Plenty\Plugin\ServiceProvider;
 use SwiatPrzesylek\Constants;
 use SwiatPrzesylek\Controllers\ShippingController;
+use SwiatPrzesylek\EventProcedures\ReturnProcedure;
 
 class SwiatPrzesylekServiceProvider extends ServiceProvider
 {
@@ -22,7 +26,8 @@ class SwiatPrzesylekServiceProvider extends ServiceProvider
 
     public function boot(
         ShippingServiceProviderService $shippingServiceProviderService,
-        ReturnsServiceProviderService $returnsServiceProviderService
+        ReturnsServiceProviderService $returnsServiceProviderService,
+        EventProceduresService $eventProceduresService
     )
     {
         $shippingServiceProviderService->registerShippingProvider(
@@ -42,6 +47,13 @@ class SwiatPrzesylekServiceProvider extends ServiceProvider
             Constants::PLUGIN_NAME,
             'Świat Przesyłek',
             ShippingController::class
+        );
+
+        $eventProceduresService->registerProcedure(
+            'SPReturn',
+            ProcedureEntry::EVENT_TYPE_ORDER,
+            ['de' => 'SP Return', 'en' => 'SP Return'],
+            ReturnProcedure::class
         );
     }
 }
