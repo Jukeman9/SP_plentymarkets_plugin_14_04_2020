@@ -18,8 +18,12 @@
 
 ## v1.2.0 (2019-10-14)
 
-- Added support for order returns and order cancellation
+- Added support for order returns and order cancellation.
 
 ## v1.2.1 (2020-03-03)
 
-- Added support for PACKSTATION
+- Added support for PACKSTATION.
+
+## v1.3.1 (2020-05-15)
+
+- Added custom procedure for order returns.

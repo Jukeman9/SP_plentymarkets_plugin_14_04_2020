@@ -580,9 +580,14 @@ class ShippingController extends Controller
         foreach ($order->orderItems as $item) {
             /** @var \Plenty\Modules\Item\Variation\Models\Variation $variation */
             $variation = $item->variation;
-//            $this->getLogger(Constants::PLUGIN_NAME)
-//                ->error('$variation' . $item->id, $variation);
-            $content[] = "{$item->quantity}: {$variation->model}";
+            $this->getLogger(Constants::PLUGIN_NAME)
+                ->info('$variation' . $item->id, [
+                    'item' => $item,
+                ]);
+            // ignore bundle items
+            if ($variation->isMain && $variation->model) {
+                $content[] = "{$item->quantity}: {$variation->model}";
+            }
         }
         $content = array_filter($content);
 
