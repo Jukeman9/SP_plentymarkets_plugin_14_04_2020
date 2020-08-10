@@ -13,6 +13,72 @@
           "type": "inputText",
           "required": true,
           "label": "Config.accessApiToken"
+        },
+        "access.content": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accessContent",
+          "options": {
+            "defaultValue": "none",
+            "selectBoxValues": [
+              {
+                "value": "",
+                "caption": "Config.none"
+              },
+              {
+                "value": "orderId",
+                "caption": "Config.orderId"
+              },
+              {
+                "value": "qtyModelIgnoreBundle",
+                "caption": "Config.qtyModelIgnoreBundle"
+              }
+            ]
+          }
+        },
+        "access.note1": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accessNote1",
+          "options": {
+            "defaultValue": "none",
+            "selectBoxValues": [
+              {
+                "value": "",
+                "caption": "Config.none"
+              },
+              {
+                "value": "orderId",
+                "caption": "Config.orderId"
+              },
+              {
+                "value": "qtyModelIgnoreBundle",
+                "caption": "Config.qtyModelIgnoreBundle"
+              }
+            ]
+          }
+        },
+        "access.note2": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accessNote2",
+          "options": {
+            "defaultValue": "none",
+            "selectBoxValues": [
+              {
+                "value": "",
+                "caption": "Config.none"
+              },
+              {
+                "value": "orderId",
+                "caption": "Config.orderId"
+              },
+              {
+                "value": "qtyModelIgnoreBundle",
+                "caption": "Config.qtyModelIgnoreBundle"
+              }
+            ]
+          }
         }
       }
     },
@@ -28,6 +94,72 @@
           "type": "inputText",
           "required": false,
           "label": "Config.accessApiTokenB"
+        },
+        "access.contentB": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accessContent",
+          "options": {
+            "defaultValue": "none",
+            "selectBoxValues": [
+              {
+                "value": "",
+                "caption": "Config.none"
+              },
+              {
+                "value": "orderId",
+                "caption": "Config.orderId"
+              },
+              {
+                "value": "qtyModelIgnoreBundle",
+                "caption": "Config.qtyModelIgnoreBundle"
+              }
+            ]
+          }
+        },
+        "access.note1B": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accessNote1",
+          "options": {
+            "defaultValue": "none",
+            "selectBoxValues": [
+              {
+                "value": "",
+                "caption": "Config.none"
+              },
+              {
+                "value": "orderId",
+                "caption": "Config.orderId"
+              },
+              {
+                "value": "qtyModelIgnoreBundle",
+                "caption": "Config.qtyModelIgnoreBundle"
+              }
+            ]
+          }
+        },
+        "access.note2B": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accessNote2",
+          "options": {
+            "defaultValue": "none",
+            "selectBoxValues": [
+              {
+                "value": "",
+                "caption": "Config.none"
+              },
+              {
+                "value": "orderId",
+                "caption": "Config.orderId"
+              },
+              {
+                "value": "qtyModelIgnoreBundle",
+                "caption": "Config.qtyModelIgnoreBundle"
+              }
+            ]
+          }
         }
       }
     },
@@ -43,6 +175,72 @@
           "type": "inputText",
           "required": false,
           "label": "Config.accessApiTokenC"
+        },
+        "access.contentC": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accessContent",
+          "options": {
+            "defaultValue": "none",
+            "selectBoxValues": [
+              {
+                "value": "",
+                "caption": "Config.none"
+              },
+              {
+                "value": "orderId",
+                "caption": "Config.orderId"
+              },
+              {
+                "value": "qtyModelIgnoreBundle",
+                "caption": "Config.qtyModelIgnoreBundle"
+              }
+            ]
+          }
+        },
+        "access.note1C": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accessNote1",
+          "options": {
+            "defaultValue": "none",
+            "selectBoxValues": [
+              {
+                "value": "",
+                "caption": "Config.none"
+              },
+              {
+                "value": "orderId",
+                "caption": "Config.orderId"
+              },
+              {
+                "value": "qtyModelIgnoreBundle",
+                "caption": "Config.qtyModelIgnoreBundle"
+              }
+            ]
+          }
+        },
+        "access.note2C": {
+          "type": "selectBox",
+          "required": false,
+          "label": "Config.accessNote2",
+          "options": {
+            "defaultValue": "none",
+            "selectBoxValues": [
+              {
+                "value": "",
+                "caption": "Config.none"
+              },
+              {
+                "value": "orderId",
+                "caption": "Config.orderId"
+              },
+              {
+                "value": "qtyModelIgnoreBundle",
+                "caption": "Config.qtyModelIgnoreBundle"
+              }
+            ]
+          }
         }
       }
     },
