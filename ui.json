@@ -1,0 +1,12 @@
+{
+  "defaultEntryPoint": "index.html",
+  "namespace": "SwiatPrzesylek",
+  "menuEntries": [
+    {
+      "label": "SP Statuses",
+      "menu": "order",
+      "urlKey": "sp-statuses",
+      "entryPoint": "dist/index.html"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "name": "SwiatPrzesylek",
   "namespace": "SwiatPrzesylek",
   "type": "shipping",
-  "version": "1.2.1",
+  "version": "1.4.0",
   "pluginIcon": "icon_plugin_xs.png",
   "description": "swiatprzesylek.pl",
   "author": "swiatprzesylek.pl",
@@ -13,6 +13,7 @@
   "license": "AGPL-3.0",
   "runOnBuild": [
     "SwiatPrzesylek\\Migrations\\CreateShippingServiceProvider",
-    "SwiatPrzesylek\\Migrations\\CreateReturnServiceProvider"
+    "SwiatPrzesylek\\Migrations\\CreateReturnServiceProvider",
+    "SwiatPrzesylek\\Migrations\\CreateStatusMapTable"
   ]
 }
