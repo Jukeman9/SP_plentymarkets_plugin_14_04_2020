@@ -1,0 +1,22 @@
+<mat-card class="col-lg-4 col-md-6 col-sm-10 offset-1 mt-1">
+  <form #f="ngForm" (ngSubmit)="onSubmit(f)">
+    <div class="row" *ngFor="let spStatus of spStatuses">
+      <div class="col">
+        <mat-form-field class="col-12">
+<!--          <mat-label>{{spStatus.name}}: map: {{mapping[spStatus.id]}}</mat-label>-->
+          <mat-label>{{spStatus.name}}:</mat-label>
+          <mat-select name="{{spStatus.id}}" ngModel [(ngModel)]="mapping[spStatus.id]">
+            <mat-option *ngFor="let orderStatus of orderStatuses" [value]="orderStatus.id">
+              {{orderStatus.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="button-row">
+      <button type="submit" mat-flat-button color="primary">
+        <mat-icon>save</mat-icon>
+      </button>
+    </div>
+  </form>
+</mat-card>

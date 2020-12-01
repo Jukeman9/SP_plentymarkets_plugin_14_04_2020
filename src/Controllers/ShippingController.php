@@ -7,6 +7,8 @@ use DateTime;
 use Plenty\Modules\Account\Address\Contracts\AddressRepositoryContract;
 use Plenty\Modules\Order\Contracts\OrderRepositoryContract;
 use Plenty\Modules\Order\Models\Order;
+use Plenty\Modules\Order\Models\OrderItem;
+use Plenty\Modules\Order\Models\OrderItemType;
 use Plenty\Modules\Order\Shipping\Information\Contracts\ShippingInformationRepositoryContract;
 use Plenty\Modules\Order\Shipping\Package\Contracts\OrderShippingPackageRepositoryContract;
 use Plenty\Modules\Order\Shipping\Package\Models\OrderShippingPackage;
@@ -21,6 +23,8 @@ use Plenty\Plugin\Controller;
 use Plenty\Plugin\Http\Request;
 use Plenty\Plugin\Log\Loggable;
 use SwiatPrzesylek\Constants;
+use SwiatPrzesylek\Libs\PackageTypeHelper;
+use SwiatPrzesylek\Libs\SwiatPrzesylek\ApiHelper;
 use SwiatPrzesylek\Libs\SwiatPrzesylek\Courier;
 
 class ShippingController extends Controller
@@ -411,7 +415,7 @@ class ShippingController extends Controller
     }
 
     /**
-     * Returns a formatted status message
+     * Returns a formatted orderStatus message
      *
      * @param array $response
      * @return string
@@ -422,7 +426,7 @@ class ShippingController extends Controller
     }
 
     /**
-     * Returns all order ids with shipping status 'open'
+     * Returns all order ids with shipping orderStatus 'open'
      *
      * @param array $orderIds
      * @return array
@@ -521,22 +525,25 @@ class ShippingController extends Controller
         $deliveryAddress = $order->deliveryAddress;
         /** @var \Plenty\Modules\Order\Shipping\Countries\Models\Country $country */
         $country = $deliveryAddress->country;
-        $company = '';
-        if ($deliveryAddress->isPackstation) {
-            $company = "PACKSTATION {$deliveryAddress->packstationNo}";
-        }
-        if ($deliveryAddress->companyName && strlen($company . ' ' . $deliveryAddress->companyName) <= 45) {
-            $company = $company . ' ' . $deliveryAddress->companyName;
-        }
         $spReceiver = [
             'name' => "{$deliveryAddress->firstName} {$deliveryAddress->lastName}",
-            'company' => $company,
+            'company' => $deliveryAddress->companyName,
             'address_line_1' => "{$deliveryAddress->street} {$deliveryAddress->houseNumber}",
             'country' => $country->isoCode2,
             'zip_code' => $deliveryAddress->postalCode,
             'city' => $deliveryAddress->town,
             'tel' => $deliveryAddress->phone ?: $this->config->get('SwiatPrzesylek.receiver.tel'),
         ];
+
+        if ($deliveryAddress->isPackstation) {
+            $spReceiver['address_line_1'] = "PACKSTATION {$deliveryAddress->packstationNo}";
+            if ($deliveryAddress->postident) {
+                $spReceiver['company'] = $deliveryAddress->postident;
+            }
+        } elseif ($deliveryAddress->isPostfiliale) {
+            $spReceiver['address_line_1'] = "POSTFILIALE {$deliveryAddress->packstationNo}";
+            $spReceiver['company'] = $deliveryAddress->postident;
+        }
 
         return $spReceiver;
     }
@@ -562,7 +569,9 @@ class ShippingController extends Controller
             'size_w' => $packageType->width,
             'size_d' => $packageType->height,
             'value' => 10, // co tu?
-            'content' => $this->prepareContentString($order),
+            'content' => $this->prepareAttributeContent($order, $packageType, 'content') ?: $order->id,
+            'note1' => $this->prepareAttributeContent($order, $packageType, 'note1'),
+            'note2' => $this->prepareAttributeContent($order, $packageType, 'note2'),
         ];
 
 //        $this->getLogger(Constants::PLUGIN_NAME)
@@ -571,22 +580,34 @@ class ShippingController extends Controller
         return $spPackage;
     }
 
-    private function prepareContentString(Order $order)
+    private function prepareAttributeContent(Order $order, ShippingPackageType $packageType, string $attribute)
     {
-        $content = [];
-        /**
-         * @var \Plenty\Modules\Order\Models\OrderItem $item
-         */
-        foreach ($order->orderItems as $item) {
-            /** @var \Plenty\Modules\Item\Variation\Models\Variation $variation */
-            $variation = $item->variation;
-//            $this->getLogger(Constants::PLUGIN_NAME)
-//                ->error('$variation' . $item->id, $variation);
-            $content[] = "{$item->quantity}: {$variation->model}";
-        }
-        $content = array_filter($content);
+        $pattern = $this->config->get(sprintf(
+            'SwiatPrzesylek.access.%s%s',
+            $attribute,
+            PackageTypeHelper::getSuffix($packageType->name)
+        ));
 
-        return $content ? implode(',', $content) : $order->id;
+        $content = [];
+
+        switch ($pattern) {
+            case 'orderId':
+                $content[] = $order->id;
+                break;
+            case Constants::QTY_MODEL_IGNORE_BUNDLE_COMPONENTS:
+                foreach ($order->orderItems as $item) {
+                    $content[] = $this->getModelForTypes($item, [OrderItemType::TYPE_VARIATION, OrderItemType::TYPE_ITEM_BUNDLE]);
+                }
+                break;
+            case Constants::QTY_MODEL_IGNORE_BUNDLE_ITEM:
+                foreach ($order->orderItems as $item) {
+                    $content[] = $this->getModelForTypes($item, [OrderItemType::TYPE_VARIATION, OrderItemType::TYPE_BUNDLE_COMPONENT]);
+                }
+                break;
+        }
+
+        return mb_substr(implode(',', array_filter($content)), 0, ApiHelper::getAttributeLimit($attribute));
+
     }
 
     private function calculateDimensions(array $spPackage, Order $order, int $numberOfPackages)
@@ -610,5 +631,22 @@ class ShippingController extends Controller
         $spPackage['size_d'] = ceil($heightMax / 10);
 
         return $spPackage;
+    }
+
+    private function getModelForTypes(OrderItem $item, array $types): string
+    {
+//        $this->getLogger(Constants::PLUGIN_NAME)
+//            ->error('Order$item', $item);
+        /** @var \Plenty\Modules\Item\Variation\Models\Variation $variation */
+        $variation = $item->variation;
+//        $this->getLogger(Constants::PLUGIN_NAME)
+//            ->error('Order$item$variation', $variation);
+        // ignore bundle items
+        if ($variation && in_array($item->typeId, $types)) {
+
+            return $item->quantity . ($variation->model ? ":{$variation->model}" : '');
+        }
+
+        return '';
     }
 }

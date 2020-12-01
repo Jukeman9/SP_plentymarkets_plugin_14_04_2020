@@ -4,6 +4,7 @@ namespace SwiatPrzesylek\Libs\SwiatPrzesylek;
 
 
 use Plenty\Plugin\ConfigRepository;
+use SwiatPrzesylek\Libs\PackageTypeHelper;
 
 class HttpClient
 {
@@ -26,20 +27,19 @@ class HttpClient
     public function setApiAccessByPackageType(ConfigRepository $configRepository, $packageType)
     {
         if (!is_string($packageType)) {
-            $packageType = 'SPA-Standard';
+            $packageType = PackageTypeHelper::DEFAULT_TYPE;
         }
 
-        $prefix = substr($packageType, 0, 4);
-        switch ($prefix) {
-            case 'SPC-':
+        switch (PackageTypeHelper::getPrefix($packageType)) {
+            case PackageTypeHelper::PREFIX_C:
                 $this->username = $configRepository->get('SwiatPrzesylek.access.apiUsernameC');
                 $this->apiToken = $configRepository->get('SwiatPrzesylek.access.apiTokenC');
                 break;
-            case 'SPB-':
+            case PackageTypeHelper::PREFIX_B:
                 $this->username = $configRepository->get('SwiatPrzesylek.access.apiUsernameB');
                 $this->apiToken = $configRepository->get('SwiatPrzesylek.access.apiTokenB');
                 break;
-            case 'SPA-':
+            case PackageTypeHelper::PREFIX_A:
             default:
                 $this->username = $configRepository->get('SwiatPrzesylek.access.apiUsername');
                 $this->apiToken = $configRepository->get('SwiatPrzesylek.access.apiToken');
@@ -64,7 +64,7 @@ class HttpClient
 
     public function getFirstError()
     {
-        $error = $this->findSpApiError();
+        $error = $this->getSpApiError();
         if (!$error) {
             $error = $this->findPackageError();
         }
@@ -92,25 +92,17 @@ class HttpClient
         curl_setopt($ch, CURLOPT_URL, $fileUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+//        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         $output = curl_exec($ch);
         curl_close($ch);
 
         return $output;
     }
 
-    private function prepareErrorMessage($msg, $details): string
-    {
-        return "<br><br>
-=====<br>
-Error message from operator: <br>
-$msg <br> 
-$details<br>
-=====";
-    }
-
-    private function findSpApiError()
+    public function getSpApiError()
     {
         if ($this->response['result'] == self::RESPONSE_FAIL) {
             $code = $this->response['error']['error_code'] ?? '';
@@ -122,6 +114,16 @@ $details<br>
                 'details' => current(current($details)),
             ];
         }
+    }
+
+    private function prepareErrorMessage($msg, $details): string
+    {
+        return "<br><br>
+=====<br>
+Error message from operator: <br>
+$msg <br> 
+$details<br>
+=====";
     }
 
     private function findPackageError()

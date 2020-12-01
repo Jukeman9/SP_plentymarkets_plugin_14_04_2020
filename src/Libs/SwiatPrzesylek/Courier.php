@@ -25,6 +25,21 @@ class Courier
         $this->client->setApiAccessByPackageType($configRepository, null);
     }
 
+    public function track($packageType, array $ids)
+    {
+        $env = $this->config->get('SwiatPrzesylek.env.type', Constants::ENV_DEV);
+
+        $this->client->setApiAccessByPackageType($this->config, $packageType);
+
+        if ($env == Constants::ENV_DEV) {
+            return $this->dummyTrack($ids);
+        }
+
+        return $this->client->post('track/courier', [
+            'ids' => $ids,
+        ]);
+    }
+
     public function cancel($packageType, $id)
     {
         $env = $this->config->get('SwiatPrzesylek.env.type', Constants::ENV_DEV);
@@ -79,6 +94,57 @@ class Courier
                 'label_type' => 'PDF',
             ],
         ]);
+    }
+
+    protected function dummyTrack(array $trackIds)
+    {
+        $tts = [];
+        foreach ($trackIds as $trackId) {
+            $tts[$trackId] = [
+                "id" => $trackId,
+                "result" => "OK",
+                "error_code" => null,
+                "code" => null,
+                "current_stat_id" => 1,
+                "stat_id_history" => [
+                    [
+                        "date" => "2020-06-09 17:21:55",
+                        "id" => "1",
+                        "location" => null,
+                    ],
+                ],
+                "stat_history" => [
+                    [
+                        "date" => "2020-06-09 17:21:55",
+                        "name" => "Nowe zlecenie",
+                        "name_full" => "Nowe zlecenie",
+                        "location" => null,
+                    ],
+                    [
+                        "date" => "2020-06-09 17:21:55",
+                        "name" => "Przetwarzanie zamówienia",
+                        "name_full" => "Przetwarzanie zamówienia",
+                        "location" => "",
+                    ],
+                    [
+                        "date" => "2020-06-09 17:22:00",
+                        "name" => "Zlecenie zaakceptowane",
+                        "name_full" => "Zlecenie zaakceptowane",
+                        "location" => "",
+                    ],
+                ],
+                "country_from" => "PL",
+                "country_to" => "DE",
+            ];
+
+            return [
+                "result" => "OK",
+                "response" => [
+                    "number" => count($tts),
+                    "tts" => $tts,
+                ],
+            ];
+        }
     }
 
     protected function dummyCreatePreRouting()
